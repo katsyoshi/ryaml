@@ -8,3 +8,5 @@
 /tmp/
 /Gemfile.lock
 /.gem_rbs_collection/
+/**/*.pf2profile
+/**/*.json
