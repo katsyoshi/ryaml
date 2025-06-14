@@ -10,7 +10,16 @@ class Ryaml::Parser
     end
   end
 
-  Line = Struct.new(:indent, :content)
+  class Line
+    attr_reader :indent, :content
+    def initialize(indent, content)
+      @indent = indent
+      @content = content
+    end
+    def to_s
+      "#{indent} #{content}"
+    end
+  end
 
   def initialize(yaml_string)
     @lines = yaml_string.lines.map(&:chomp).reject(&:empty?).map { |line| parse_line(line) }
