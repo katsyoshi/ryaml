@@ -3,7 +3,7 @@
 require_relative "ryaml/version"
 require_relative "ryaml/parser"
 
-module RYAML
+module Ryaml
   class Error < StandardError; end
   # Your code goes here...
 end

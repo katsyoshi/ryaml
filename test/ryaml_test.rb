@@ -9,7 +9,8 @@ class RyamlTest < Test::Unit::TestCase
     end
   end
 
-  test "something useful" do
-    assert_equal("expected", "actual")
+  test "parse mapping yaml" do
+    ryaml = Ryaml::Parser.new("foo: bar").parse
+    assert_equal ryaml, {"foo" => "bar"}
   end
 end

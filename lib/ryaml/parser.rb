@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class RYAML::Parser
+class Ryaml::Parser
   attr_reader :lines_enum
   class << self
     def parse(yaml_string)
@@ -16,6 +16,8 @@ class RYAML::Parser
     @lines = yaml_string.lines.map(&:chomp).reject(&:empty?).map { |line| parse_line(line) }
     @lines_enum = @lines.to_enum
   end
+
+  def parse = parse_node(-1)
 
   def parse_line(line)
     indent = line.match(/^\s*/)[0].length

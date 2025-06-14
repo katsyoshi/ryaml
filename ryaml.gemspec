@@ -4,7 +4,7 @@ require_relative "lib/ryaml/version"
 
 Gem::Specification.new do |spec|
   spec.name = "ryaml"
-  spec.version = RYAML::VERSION
+  spec.version = Ryaml::VERSION
   spec.authors = ["MATSUMOTO, Katsuyoshi"]
   spec.email = ["github@katsyoshi.org"]
 
