@@ -52,7 +52,7 @@ class Ryaml::Parser
                     false
                   end
       value = next_line ? parse_node(current_indent) : value_str
-      result[key] = value
+      result[key] = parse_type(value)
     end
     result
   end
@@ -73,5 +73,18 @@ class Ryaml::Parser
       result << value
     end
     result
+  end
+
+  def parse_type(value)
+    case value
+    when /^\d+$/
+      value.to_i
+    when /^\d+\.\d+$/
+      value.to_f
+    when Hash || Array
+      value
+    else
+      value.gsub(/^['"]|['"]$/, '')
+    end
   end
 end
