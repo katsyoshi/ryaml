@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "test_helper"
+require_relative "test_helper"
 
 class RyamlTest < Test::Unit::TestCase
   test "VERSION" do
@@ -12,5 +12,16 @@ class RyamlTest < Test::Unit::TestCase
   test "parse mapping yaml" do
     ryaml = Ryaml::Parser.new("foo: bar\nbuzz: 1").parse
     assert_equal ryaml, {"foo" => "bar", "buzz" => 1}
+  end
+
+  test "parse sequence with dash" do
+    ryaml = Ryaml::Parser.new("- foo\n- bar\n- buzz").parse
+    assert_equal ryaml, ["foo", "bar", "buzz"]
+  end
+
+  description "parse sequence with square bracket"
+  test "single line" do
+    ryaml = Ryaml::Parser.new("[foo,bar,buzz]").parse
+    assert_equal ryaml, ["foo", "bar", "buzz"]
   end
 end

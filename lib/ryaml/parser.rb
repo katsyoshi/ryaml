@@ -42,6 +42,8 @@ class Ryaml::Parser
 
     if first_line.content.start_with?('- ')
       parse_sequence(current_indent)
+    elsif first_line.content.start_with?('[')
+      parse_bracket_sequence(current_indent)
     elsif first_line.content.include?(': ')
       parse_mapping(current_indent)
     else
@@ -80,6 +82,16 @@ class Ryaml::Parser
 
       value = next_line ? parse_node(current_indent) : value_str
       result << value
+    end
+    result
+  end
+
+  def parse_bracket_sequence(current_indent)
+    result = []
+    loop do
+      line = lines_enum.next
+      value_str = line.content.delete_prefix('[').delete_suffix(']').split(/,/).map(&:strip)
+      result += value_str.map { parse_type(it) }
     end
     result
   end
