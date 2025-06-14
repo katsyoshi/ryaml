@@ -53,7 +53,7 @@ class Ryaml::Parser
     result = {}
     loop do
       line = lines_enum.next
-      key, value_str = line.content.split(': ', 2)
+      key, value_str = line.content.split(/:\s*/, 2)
 
       next_line = begin
                     lines_enum.peek.indent > current_indent
