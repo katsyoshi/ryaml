@@ -10,7 +10,16 @@ class Ryaml::Parser
     end
   end
 
-  Line = Struct.new(:indent, :content)
+  class Line
+    attr_reader :indent, :content
+    def initialize(indent, content)
+      @indent = indent
+      @content = content
+    end
+    def to_s
+      "#{indent} #{content}"
+    end
+  end
 
   def initialize(yaml_string)
     @lines = yaml_string.lines.map(&:chomp).reject(&:empty?).map { |line| parse_line(line) }
@@ -44,7 +53,7 @@ class Ryaml::Parser
     result = {}
     loop do
       line = lines_enum.next
-      key, value_str = line.content.split(': ', 2)
+      key, value_str = line.content.split(/:\s*/, 2)
 
       next_line = begin
                     lines_enum.peek.indent > current_indent
@@ -52,7 +61,7 @@ class Ryaml::Parser
                     false
                   end
       value = next_line ? parse_node(current_indent) : value_str
-      result[key] = value
+      result[key] = parse_type(value)
     end
     result
   end
@@ -73,5 +82,18 @@ class Ryaml::Parser
       result << value
     end
     result
+  end
+
+  def parse_type(value)
+    case value
+    when /^\d+$/
+      value.to_i
+    when /^\d+\.\d+$/
+      value.to_f
+    when Hash || Array
+      value
+    else
+      value.gsub(/^['"]|['"]$/, '')
+    end
   end
 end
