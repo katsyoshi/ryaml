@@ -10,6 +10,8 @@ class Ryaml::Parser
     end
   end
 
+  class IndentationError < StandardError; end
+
   class Line
     attr_reader :indent, :content
     def initialize(indent, content)
@@ -36,7 +38,7 @@ class Ryaml::Parser
 
   def parse_node(parent_indent)
     first_line = lines_enum.peek
-    raise "Indentation error" if first_line.indent <= parent_indent
+    raise IdentationError "Indentation error" if first_line.indent <= parent_indent
 
     current_indent = first_line.indent
 
