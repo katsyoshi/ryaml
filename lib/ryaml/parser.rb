@@ -29,6 +29,11 @@ class Ryaml::Parser
   end
 
   def parse = parse_node(-1)
+  def rewind = @lines_enum.rewind
+  def parse!
+    parse
+    rewind
+  end
 
   def parse_line(line)
     indent = line.match(/^\s*/)[0].length
