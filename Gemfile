@@ -7,7 +7,8 @@ gemspec
 
 gem "irb"
 gem "rake", "~> 13.0"
+gem "test-unit"
 
-gem "test-unit", "~> 3.0"
+gem "benchmark-ips"
 gem "rbs-inline"
 gem "pf2"
