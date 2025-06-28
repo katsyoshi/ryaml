@@ -11,4 +11,3 @@ gem "test-unit"
 
 gem "benchmark-ips"
 gem "rbs-inline"
-gem "pf2"
