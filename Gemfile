@@ -5,9 +5,14 @@ source "https://rubygems.org"
 # Specify your gem's dependencies in ryaml.gemspec
 gemspec
 
-gem "irb"
-gem "rake", "~> 13.0"
+gem "rake"
 
-gem "test-unit", "~> 3.0"
-gem "rbs-inline"
-gem "pf2"
+group :development do
+  gem "benchmark-ips"
+  gem "irb"
+  gem "rbs-inline"
+end
+
+group :test do
+  gem "test-unit"
+end
