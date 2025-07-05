@@ -24,4 +24,9 @@ class RyamlTest < Test::Unit::TestCase
     ryaml = Ryaml::Parser.new("[foo,bar,buzz]").parse
     assert_equal ryaml, ["foo", "bar", "buzz"]
   end
+
+  test "parse mapping from file" do
+    ryaml = Ryaml::Parser.new(File.read("./samples/mapping.yml")).parse
+    assert_equal ryaml, {"alice" => 42, "bravo" => 1.3, "charlie" => "delta", "echo" => "Foxtrot", "golf" => {"hotel" => "india", "juliet" => {"kilo" => 1}}}
+  end
 end

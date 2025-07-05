@@ -1,49 +1,52 @@
 # frozen_string_literal: true
 
 class Ryaml::Parser
-  attr_reader :lines_enum
-  class << self
-    def parse(yaml_string)
-      lines = new(yaml_string)
-
-      lines.parse_node(-1)
-    end
+  attr_reader :ast
+  INITIAL_LINE_NUM = 0
+  def self.parse(yaml_string)
+    lines = new(yaml_string)
+    lines.parse_node(-1)
   end
 
   class IndentationError < StandardError; end
 
   class Line
-    attr_reader :indent, :content
-    def initialize(indent, content)
+    attr_reader :num, :indent, :content
+    def initialize(line, indent, content)
       @indent = indent
       @content = content
+      @num = line
     end
-    def to_s
-      "#{indent} #{content}"
-    end
+    def to_s = "#{"%4d|" %num} #{"%2d|" % indent} #{content}"
   end
 
   def initialize(yaml_string)
-    @lines = yaml_string.lines.map(&:chomp).reject(&:empty?).map { |line| parse_line(line) }
-    @lines_enum = @lines.to_enum
+    i = 0
+    @ast = yaml_string.lines.map(&:chomp).reject(&:empty?)
+              .map do |line|
+      parsed_line = parse_line(i, line)
+      i += 1
+      parsed_line
+    end
+    @pos = INITIAL_LINE_NUM
   end
 
   def parse = parse_node(-1)
-  def rewind = @lines_enum.rewind
+  def rewind = @pos = INITIAL_LINE_NUM
   def parse!
     parse
     rewind
   end
 
-  def parse_line(line)
+  def parse_line(num, line)
     indent = line.match(/^\s*/)[0].length
     content = line.strip
-    Line.new(indent, content)
+    Line.new(num, indent, content)
   end
 
   def parse_node(parent_indent)
-    first_line = lines_enum.peek
-    raise IdentationError "Indentation error" if first_line.indent <= parent_indent
+    first_line = ast[@pos]
+    raise Ryaml::Parser::IndentationError, "Indentation error" if first_line.indent <= parent_indent
 
     current_indent = first_line.indent
 
@@ -54,23 +57,20 @@ class Ryaml::Parser
     elsif first_line.content.include?(': ')
       parse_mapping(current_indent)
     else
-      lines_enum.next.content
+      ast[@pos].content
     end
   end
 
   def parse_mapping(current_indent)
     result = {}
     loop do
-      line = lines_enum.next
+      line = ast[@pos]
       key, value_str = line.content.split(/:\s*/, 2)
-
-      next_line = begin
-                    lines_enum.peek.indent > current_indent
-                  rescue StopIteration
-                    false
-                  end
+      @pos += 1
+      next_line = ast[@pos]&.indent.to_i > current_indent
       value = next_line ? parse_node(current_indent) : value_str
       result[key] = parse_type(value)
+      break if ast[@pos].nil?
     end
     result
   end
@@ -78,17 +78,13 @@ class Ryaml::Parser
   def parse_sequence(current_indent)
     result = []
     loop do
-      line = lines_enum.next
+      line = ast[@pos]
       value_str = line.content.delete_prefix('- ').strip
-
-      next_line = begin
-                    lines_enum.peek.indent > current_indent
-                  rescue StopIteration
-                    false
-                  end
-
+      @pos += 1
+      next_line = ast[@pos]&.indent.to_i > current_indent
       value = next_line ? parse_node(current_indent) : value_str
       result << value
+      break if ast[@pos].nil?
     end
     result
   end
@@ -96,9 +92,11 @@ class Ryaml::Parser
   def parse_bracket_sequence(current_indent)
     result = []
     loop do
-      line = lines_enum.next
+      line = ast[@pos]
       value_str = line.content.delete_prefix('[').delete_suffix(']').split(/,/).map(&:strip)
       result += value_str.map { parse_type(it) }
+      @pos += 1
+      break if @pos >= ast.size || ast[@pos].nil?
     end
     result
   end
